@@ -1,13 +1,16 @@
 import uuid
+from unittest import mock
+from typing import List
 
 import pytest
 
 from src.domain.room import Room
 from src.use_cases.room import RoomUseCase
+from src.repository.memrepo import MemRepo
 
 
 @pytest.fixture
-def domain_rooms():
+def domain_rooms() -> List[Room]:
     room_1 = Room(
         code=uuid.uuid4(),
         size=100,
@@ -41,9 +44,12 @@ def domain_rooms():
 
 
 class TestRoomUseCase:
-    def test_room_list_without_parameters(domain_rooms):
-        repo = domain_rooms
+    def test_room_list_without_parameters(self, domain_rooms):
+        repo = mock.Mock()
+        repo.list.return_value = domain_rooms
+
         room_use_case = RoomUseCase()
         result = room_use_case.list(repo)
 
+        repo.list.assert_called_with()
         assert result == domain_rooms
